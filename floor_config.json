@@ -1,0 +1,28 @@
+{
+    "Rooms": [
+        {
+            "id": "room1",
+            "rank": 4,
+            "Links": {
+                "800": "room2",
+                "801": "room3"
+            }
+        },
+        {
+            "id": "room2",
+            "rank": 4,
+            "Links": {
+                "800": "room1",
+                "801": "room3"
+            }
+        },
+        {
+            "id": "room3",
+            "rank": 4,
+            "Links": {
+                "800": "room2",
+                "801": "room3"
+            }
+        }
+    ]
+}

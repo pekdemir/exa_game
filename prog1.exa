@@ -1,0 +1,9 @@
+GRAB 199
+MARK start
+ADDI X 1 X
+COPY X F
+TEST X < 5
+TJMP start
+LINK 801
+DROP
+HALT
