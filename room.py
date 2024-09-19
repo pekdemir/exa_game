@@ -1,10 +1,11 @@
 
 
 class Room:
-    def __init__(self, id, rank) -> None:
+    def __init__(self, id, row, col) -> None:
         self.id = id
-        self.rank = rank
-        self.slots = [None] * rank * rank
+        self.row = row
+        self.col = col
+        self.slots = [None] * row * col
         self.links = {} # {link_id: room}
     
     def add_slot(self, index, slot) -> None:
