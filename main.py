@@ -22,11 +22,13 @@ if __name__=="__main__":
     file = File(199)
     room1.put_entity(file)
 
-    bot1 = Bot("bot1", "prog1.exa")
+    bot1 = Bot("bot1")
+    bot1.parse_code_from_file("prog1.exa")
     room1.put_entity(bot1)
     # bot.run()
 
-    bot2 = Bot("bot2", "prog2.exa")
+    bot2 = Bot("bot2")
+    bot2.parse_code_from_file("prog2.exa")
     room1.put_entity(bot2)
     # bot.run()
 

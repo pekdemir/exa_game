@@ -26,14 +26,16 @@ class Register:
     def __repr__(self) -> str:
         return str(self.value)
 
-class Code:
-    def __init__(self, bot) -> None:
-        self.bot = bot
+class Bot(RoomEntity):
+    def __init__(self, bot_id) -> None:
+        super().__init__(bot_id)
         self.instructions = []
         self.labels = {}
         self.regs = {'X': Register('X'), 'T': Register('T'), 'F': None, 'M': None, 'PC': 0}
         self.isLocal = False
-
+        self.alive = True
+        print(f"Bot {self.id} created")
+        
     def print_state(self) -> None:
         print("Registers:")
         print(f"\tX: {self.regs['X']}")
@@ -51,6 +53,10 @@ class Code:
             else:
                 print(f"\t{instruction.opcode} {' '.join(instruction.args)}")
 
+    def parse_code_from_file(self, file_name) -> None:
+        with open(file_name, 'r') as file:
+            code_str = file.read()
+            self.parse_code(code_str)  
 
     def parse_code(self, code_str) -> None:
         self.code = code_str
@@ -80,7 +86,7 @@ class Code:
         if len(instruction.args) != num_args:
             raise Exception(f"{instruction.opcode} requires {num_args} arguments")
 
-    def step(self) -> bool:
+    def _step(self) -> bool:
         if self.regs["PC"] >= len(self.instructions):
             return False
         instruction = self.instructions[self.regs["PC"]]
@@ -94,7 +100,7 @@ class Code:
         elif instruction.opcode == "LINK":
             self._arg_check(instruction, 1)
             link_id = instruction.args[0]
-            if not self.bot.move(link_id):
+            if not self.move(link_id):
                 raise Exception(f"Link {link_id} not found")
             if self.regs['F'] is not None:
                 if not self.regs['F'].move(link_id):
@@ -137,7 +143,7 @@ class Code:
         elif instruction.opcode == "GRAB":
             self._arg_check(instruction, 1)
             file_id = self._get_value(instruction.args[0])
-            file = self.bot.room.find_entity(File, file_id)
+            file = self.room.find_entity(File, file_id)
             if file is None:
                 raise Exception(f"File {file_id} not found")
             if file.is_grabbed():
@@ -224,39 +230,20 @@ class Code:
         return True
 
 
-
-
-class Bot(RoomEntity):
-    def __init__(self, bot_id) -> None:
-        super().__init__(bot_id)
-        self.code = None
-        self.alive = True
-
-    # def __init__(self, bot_id, code_str) -> None:
-    #     super().__init__(bot_id)
-    #     self.code = Code(self)
-    #     self.code.parse_code(code_str)
-
-    def __init__(self, bot_id, file_name) -> None:
-        super().__init__(bot_id)
-        with open(file_name, 'r') as file:
-            code_str = file.read()
-            self.code = Code(self)
-            self.code.parse_code(code_str)  
-    
     def destroy(self) -> None:
         self.room.remove_entity(self)
         self.alive = False
+        print(f"Bot {self.id} destroyed")
 
     def step(self) -> bool:
-        result = self.code.step()
-        self.code.print_state()
+        result = self._step()
+        self.print_state()
         return result
     
     def run(self) -> None:
         try:
-            while self.code.step():
-                self.code.print_state()
+            while self._step():
+                self.print_state()
         except Exception as e:
             print(e)
             self.destroy()

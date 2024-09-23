@@ -1,4 +1,4 @@
-from bot import Bot, Code
+from bot import Bot
 
 class Scheduler:
     def __init__(self) -> None:
@@ -17,6 +17,7 @@ class Scheduler:
                 result = self.current_bot.step()
             except Exception as e:
                 print(f"Bot ID: {self.current_bot.id} - {e}")  
+                self.current_bot.destroy()
                 continue
             if result:
                 stepped_bots.append(self.current_bot)

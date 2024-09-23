@@ -24,7 +24,7 @@ class CommRegister():
         else:
             return False
     
-    def notify_sended(self):
+    def notify_sent(self):
         self.state = CommState.IDLE
 
 
@@ -46,5 +46,6 @@ class Communication:
         if len(self.provider_list) > 0:
             first_sender = self.provider_list[0] # TODO: get random sender
             self.remove_sender(first_sender)
+            first_sender.notify_sent()
             return first_sender['data']
         return None

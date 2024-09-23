@@ -9,7 +9,7 @@ class Floor:
         with open(file_path) as file:
             json_context = json.load(file)
             for room_data in json_context["Rooms"]:
-                room = Room(room_data["id"], room_data["rank"])
+                room = Room(room_data["id"], room_data["row"], room_data["col"])
                 self.add_room(room)
             for room_data in json_context["Rooms"]:
                 room = self.get_room(room_data["id"])
