@@ -41,35 +41,46 @@ if __name__=="__main__":
     cmd = input(">")
     while cmd != "exit":
         cmd = cmd.split(" ")
-        if cmd[0] == "step":
-            scheduler.cycle()
-        elif cmd[0] == "room":
-            room = floor.find_entity(Room, cmd[1])
-            if room is not None:
-                print(room)
-            else:
-                print("Room not found")
-        elif cmd[0] == "floor":
-            floor.print_floor()
-        elif cmd[0] == "bot":
-            bot = floor.find_entity(Bot, cmd[1])
-            if bot is not None:
-                bot.print_state()
-            else:
-                print("Bot not found")
-        elif cmd[0] == "file":
-            file = floor.find_entity(File, cmd[1])
-            if file is not None:
-                print(file)
-            else:
-                print("File not found")
-        elif cmd[0] == "variable":
-            variable = floor.find_entity(RoomVariable, cmd[1])
-            if variable is not None:
-                print(variable)
-            else:
-                print("Variable not found")
-
+        match cmd[0]:
+            case "help":
+                print("Commands:")
+                print("step - run one step of the scheduler")
+                print("room <room_id> - print room details")
+                print("floor - print floor details")
+                print("bot <bot_id> - print bot details")
+                print("file <file_id> - print file details")
+                print("variable <variable_id> - print variable details")
+                print("exit - exit the program")
+            case "step":
+                scheduler.cycle()
+            case "room":
+                room = floor.find_entity(Room, cmd[1])
+                if room is not None:
+                    print(room)
+                else:
+                    print("Room not found")
+            case "floor":
+                floor.print_floor()
+            case "bot":
+                bot = floor.find_entity(Bot, cmd[1])
+                if bot is not None:
+                    bot.print_state()
+                else:
+                    print("Bot not found")
+            case "file":
+                file = floor.find_entity(File, int(cmd[1]))
+                if file is not None:
+                    print(file)
+                else:
+                    print("File not found")
+            case "variable":
+                variable = floor.find_entity(RoomVariable, cmd[1])
+                if variable is not None:
+                    print(variable)
+                else:
+                    print("Variable not found")
+            case _:
+                print("Invalid command")
         cmd = input(">")
 
     # while scheduler.cycle():

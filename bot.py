@@ -91,140 +91,141 @@ class Bot(RoomEntity):
             return False
         instruction = self.instructions[self.regs["PC"]]
 
-        if instruction.opcode == "JUMP":
-            self._arg_check(instruction, 1)
-            if not instruction.args[0] in self.labels:
-                raise Exception(f"Label {instruction.args[0]} not found")
-            self.regs["PC"] = self.labels[instruction.args[0]]
+        match instruction.opcode:
+            case "JUMP":
+                self._arg_check(instruction, 1)
+                if not instruction.args[0] in self.labels:
+                    raise Exception(f"Label {instruction.args[0]} not found")
+                self.regs["PC"] = self.labels[instruction.args[0]]
 
-        elif instruction.opcode == "LINK":
-            self._arg_check(instruction, 1)
-            link_id = instruction.args[0]
-            if not self.move(link_id):
-                raise Exception(f"Link {link_id} not found")
-            if self.regs['F'] is not None:
-                if not self.regs['F'].move(link_id):
+            case "LINK":
+                self._arg_check(instruction, 1)
+                link_id = instruction.args[0]
+                if not self.move(link_id):
                     raise Exception(f"Link {link_id} not found")
+                if self.regs['F'] is not None:
+                    if not self.regs['F'].move(link_id):
+                        raise Exception(f"Link {link_id} not found")
 
-        elif instruction.opcode == "COPY":
-            self._arg_check(instruction, 2)
-            dest = self._get_reg(instruction.args[1])
-            source = self._get_value(instruction.args[0])
-            self.regs[dest].write(source)
+            case "COPY":
+                self._arg_check(instruction, 2)
+                dest = self._get_reg(instruction.args[1])
+                source = self._get_value(instruction.args[0])
+                self.regs[dest].write(source)
 
-        elif instruction.opcode == "ADDI":
-            self._arg_check(instruction, 3)
-            dest = self._get_reg(instruction.args[2])
-            first = self._get_value(instruction.args[0])
-            second = self._get_value(instruction.args[1])
-            self.regs[dest].write(first + second)
-
-        elif instruction.opcode == "SUBI":
-            self._arg_check(instruction, 3)
-            dest = self._get_reg(instruction.args[2])
-            first = self._get_value(instruction.args[0])
-            second = self._get_value(instruction.args[1])
-            self.regs[dest].write(first - second)
-
-        elif instruction.opcode == "MULI":
-            self._arg_check(instruction, 3)
-            dest = self._get_reg(instruction.args[2])
-            first = self._get_value(instruction.args[0])
-            second = self._get_value(instruction.args[1])
-            self.regs[dest].write(first * second)
-
-        elif instruction.opcode == "DIVI":
-            self._arg_check(instruction, 3)
-            dest = self._get_reg(instruction.args[2])
-            first = self._get_value(instruction.args[0])
-            second = self._get_value(instruction.args[1])
-            self.regs[dest].write(first // second)
-
-        elif instruction.opcode == "GRAB":
-            self._arg_check(instruction, 1)
-            file_id = self._get_value(instruction.args[0])
-            file = self.room.find_entity(File, file_id)
-            if file is None:
-                raise Exception(f"File {file_id} not found")
-            if file.is_grabbed():
-                raise Exception(f"File {file_id} already grabbed")
-            file.reset()
-            file.grab()
-            self.regs["F"] = file
-            
-        elif instruction.opcode == "DROP":
-            if self.regs["F"] is None:
-                raise Exception("No file grabbed")
-            self.regs["F"].drop()
-            self.regs["F"] = None
-
-        elif instruction.opcode == "SEEK":
-            self._arg_check(instruction, 1)
-            if self.regs["F"] is None:
-                raise Exception("No file grabbed")
-            index = self._get_value(instruction.args[0])
-            self.regs["F"].seek(index)
-
-        elif instruction.opcode == "HALT":
-            return False
-        
-        elif instruction.opcode == "KILL":
-            pass
-
-        elif instruction.opcode == "REPL":
-            self._arg_check(instruction, 1)
-            pass
-
-        elif instruction.opcode == "TEST":
-            if len(instruction.args) == 1:
-                if instruction.args[0] == "EOF":
-                    if self.regs["F"] is None:
-                        raise Exception("No file grabbed")
-                    self.regs["T"] = 1 if self.regs["F"].is_eof() else 0
-                else:
-                    raise Exception("Invalid argument")
-            else:
+            case "ADDI":
                 self._arg_check(instruction, 3)
-                first = self._get_reg(instruction.args[0])
-                second = self._get_value(instruction.args[2])
-                operator = instruction.args[1]
-                if operator == "==":
-                    self.regs["T"] = 1 if self.regs[first].read() == second else 0
-                elif operator == "!=":
-                    self.regs["T"] = 1 if self.regs[first].read() != second else 0
-                elif operator == "<":
-                    self.regs["T"] = 1 if self.regs[first].read() < second else 0
-                elif operator == ">":
-                    self.regs["T"] = 1 if self.regs[first].read() > second else 0
-                elif operator == "<=":
-                    self.regs["T"] = 1 if self.regs[first].read() <= second else 0
-                elif operator == ">=":
-                    self.regs["T"] = 1 if self.regs[first].read() >= second else 0
-                else:
-                    raise Exception("Invalid operator")
+                dest = self._get_reg(instruction.args[2])
+                first = self._get_value(instruction.args[0])
+                second = self._get_value(instruction.args[1])
+                self.regs[dest].write(first + second)
+
+            case "SUBI":
+                self._arg_check(instruction, 3)
+                dest = self._get_reg(instruction.args[2])
+                first = self._get_value(instruction.args[0])
+                second = self._get_value(instruction.args[1])
+                self.regs[dest].write(first - second)
+
+            case "MULI":
+                self._arg_check(instruction, 3)
+                dest = self._get_reg(instruction.args[2])
+                first = self._get_value(instruction.args[0])
+                second = self._get_value(instruction.args[1])
+                self.regs[dest].write(first * second)
+
+            case "DIVI":
+                self._arg_check(instruction, 3)
+                dest = self._get_reg(instruction.args[2])
+                first = self._get_value(instruction.args[0])
+                second = self._get_value(instruction.args[1])
+                self.regs[dest].write(first // second)
+
+            case "GRAB":
+                self._arg_check(instruction, 1)
+                file_id = self._get_value(instruction.args[0])
+                file = self.room.find_entity(File, file_id)
+                if file is None:
+                    raise Exception(f"File {file_id} not found")
+                if file.is_grabbed():
+                    raise Exception(f"File {file_id} already grabbed")
+                file.reset()
+                file.grab()
+                self.regs["F"] = file
                 
-        elif instruction.opcode == "FJMP":
-            self._arg_check(instruction, 1)
-            if self.regs["T"] == 0:
-                if not instruction.args[0] in self.labels:
-                    raise Exception(f"Label {instruction.args[0]} not found")
-                self.regs["PC"] = self.labels[instruction.args[0]]
+            case "DROP":
+                if self.regs["F"] is None:
+                    raise Exception("No file grabbed")
+                self.regs["F"].drop()
+                self.regs["F"] = None
 
-        elif instruction.opcode == "TJMP":
-            self._arg_check(instruction, 1)
-            if self.regs["T"] != 0:
-                if not instruction.args[0] in self.labels:
-                    raise Exception(f"Label {instruction.args[0]} not found")
-                self.regs["PC"] = self.labels[instruction.args[0]]
+            case "SEEK":
+                self._arg_check(instruction, 1)
+                if self.regs["F"] is None:
+                    raise Exception("No file grabbed")
+                index = self._get_value(instruction.args[0])
+                self.regs["F"].seek(index)
 
-        elif instruction.opcode == "MAKE":
-            pass
+            case "HALT":
+                return False
+            
+            case "KILL":
+                pass
 
-        elif instruction.opcode == "MARK":
-            pass
-        
-        else:
-            raise Exception(f"Unknown instruction {instruction.opcode}")
+            case "REPL":
+                self._arg_check(instruction, 1)
+                pass
+
+            case "TEST":
+                if len(instruction.args) == 1:
+                    if instruction.args[0] == "EOF":
+                        if self.regs["F"] is None:
+                            raise Exception("No file grabbed")
+                        self.regs["T"] = 1 if self.regs["F"].is_eof() else 0
+                    else:
+                        raise Exception("Invalid argument")
+                else:
+                    self._arg_check(instruction, 3)
+                    first = self._get_reg(instruction.args[0])
+                    second = self._get_value(instruction.args[2])
+                    operator = instruction.args[1]
+                    if operator == "==":
+                        self.regs["T"] = 1 if self.regs[first].read() == second else 0
+                    elif operator == "!=":
+                        self.regs["T"] = 1 if self.regs[first].read() != second else 0
+                    elif operator == "<":
+                        self.regs["T"] = 1 if self.regs[first].read() < second else 0
+                    elif operator == ">":
+                        self.regs["T"] = 1 if self.regs[first].read() > second else 0
+                    elif operator == "<=":
+                        self.regs["T"] = 1 if self.regs[first].read() <= second else 0
+                    elif operator == ">=":
+                        self.regs["T"] = 1 if self.regs[first].read() >= second else 0
+                    else:
+                        raise Exception("Invalid operator")
+                    
+            case "FJMP":
+                self._arg_check(instruction, 1)
+                if self.regs["T"] == 0:
+                    if not instruction.args[0] in self.labels:
+                        raise Exception(f"Label {instruction.args[0]} not found")
+                    self.regs["PC"] = self.labels[instruction.args[0]]
+
+            case "TJMP":
+                self._arg_check(instruction, 1)
+                if self.regs["T"] != 0:
+                    if not instruction.args[0] in self.labels:
+                        raise Exception(f"Label {instruction.args[0]} not found")
+                    self.regs["PC"] = self.labels[instruction.args[0]]
+
+            case "MAKE":
+                pass
+
+            case "MARK":
+                pass
+            
+            case _:
+                raise Exception(f"Unknown instruction {instruction.opcode}")
 
         self.regs["PC"] += 1
         return True
