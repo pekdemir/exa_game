@@ -44,6 +44,8 @@ if __name__=="__main__":
         match cmd[0]:
             case "help":
                 print("Commands:")
+                print("help - print this help message")
+                print("run <count> - run the scheduler for <count> cycles")
                 print("step - run one step of the scheduler")
                 print("room <room_id> - print room details")
                 print("floor - print floor details")
@@ -53,6 +55,14 @@ if __name__=="__main__":
                 print("exit - exit the program")
             case "step":
                 scheduler.cycle()
+            case "run":
+                if len(cmd) > 1:
+                    count = int(cmd[1])
+                    for i in range(count):
+                        scheduler.cycle()
+                else:
+                    while scheduler.cycle():
+                        pass
             case "room":
                 room = floor.find_entity(Room, cmd[1])
                 if room is not None:
