@@ -87,9 +87,10 @@ class Bot(RoomEntity):
             raise Exception(f"{instruction.opcode} requires {num_args} arguments")
 
     def _step(self) -> bool:
-        if self.regs["PC"] >= len(self.instructions):
-            return False
-        instruction = self.instructions[self.regs["PC"]]
+        try:
+            instruction = self.instructions[self.regs["PC"]]
+        except IndexError:
+            raise Exception("Out of instructions")
 
         match instruction.opcode:
             case "JUMP":
