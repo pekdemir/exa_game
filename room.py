@@ -43,6 +43,9 @@ class Room:
                 return slot
         return None
     
+    def __repr__(self) -> str:
+        return f"Room {self.id}: {self.slots} (Links: {[(key, value.id) for key, value in self.links.items()]})"
+    
 
 class RoomEntity:
     def __init__(self, id) -> None:
@@ -59,4 +62,6 @@ class RoomEntity:
                 return True
         return False
 
+    def __repr__(self) -> str:
+        return f"Entity {self.id} as type {type(self)} in Room {self.room.id}"
     

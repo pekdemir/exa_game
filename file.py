@@ -45,7 +45,7 @@ class File(RoomEntity):
         self.index = new_index
 
     def __repr__(self) -> str:
-        return str(self.data) + f" ({self.index})" + "EOF: " + str(self.is_eof()) 
+        return f"File {self.id} Data: {self.data} index:({self.index})" + "EOF: " + str(self.is_eof()) 
 
 
 

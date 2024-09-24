@@ -237,7 +237,7 @@ class Bot(RoomEntity):
 
     def step(self) -> bool:
         result = self._step()
-        self.print_state()
+        # self.print_state()
         return result
     
     def run(self) -> None:
@@ -247,4 +247,7 @@ class Bot(RoomEntity):
         except Exception as e:
             print(e)
             self.destroy()
+        
+    def __repr__(self) -> str:
+        return f"Bot {self.id} alive: {self.alive}"
             

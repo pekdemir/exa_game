@@ -17,7 +17,7 @@ class RoomVariable(RoomEntity):
             self.data = data
 
     def __repr__(self) -> str:
-        return f"Variable {self.id}: " + str(self.data) + " (Read Only: " + str(self.is_read_only) + ")" 
+        return f"Variable {self.id}: {self.data} Read Only: {self.is_read_only}" 
 
 
 

@@ -28,3 +28,12 @@ class Floor:
     def get_room(self, room_id) -> Room:
         return self.rooms[room_id]
     
+    def find_entity(self, type, id):
+        if type == Room and id in self.rooms:
+            return self.get_room(id)
+        for room in self.rooms.values():
+            entity = room.find_entity(type, id)
+            if entity is not None:
+                return entity
+        return None
+    
