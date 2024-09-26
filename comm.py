@@ -1,34 +1,5 @@
 from enum import IntEnum
 
-class CommState(IntEnum):
-    IDLE = 0
-    SEND_BLOCKED = 1
-    SEND_SUCCESS = 2
-    RECEIVE_BLOCKED = 3
-    RECEIVE_SUCCESS = 4
-
-class CommRegister():
-    def __init__(self, communication):
-        self.name = 'M'
-        self.communication = communication
-        self.is_local = False
-        self.state = CommState.IDLE
-
-    def read(self):
-        return self.communication.receive()
-
-    def write(self, data):
-        if self.state == CommState.IDLE:
-            self.communication.send(self, data)
-            self.state = CommState.SEND_BLOCKED
-        else:
-            return False
-    
-    def notify_sent(self):
-        self.state = CommState.IDLE
-
-
-
 class Communication:
     def __init__(self):
         self.provider_list = []
@@ -44,8 +15,41 @@ class Communication:
 
     def receive(self) -> bool:
         if len(self.provider_list) > 0:
-            first_sender = self.provider_list[0] # TODO: get random sender
+            first_sender_dict = self.provider_list[0] # TODO: get random sender
+            first_sender = first_sender_dict['sender']
             self.remove_sender(first_sender)
             first_sender.notify_sent()
-            return first_sender['data']
+            return first_sender_dict['data']
         return None
+    
+
+class CommRegister():
+    def __init__(self, communication:Communication, bot) -> None:
+        self.name = 'M'
+        self.communication = communication
+        self.bot = bot
+        self.data = None
+        self.is_local = False
+
+    def read(self):
+        data = self.communication.receive()
+        if data is None:
+            self.bot.set_comm_blocked(True)
+            return None
+        else:
+            self.bot.set_comm_blocked(False)
+            return data
+
+    def write(self, data):
+        self.communication.send(self, data)
+        self.data = data
+        self.bot.set_comm_blocked(True)
+
+    def notify_sent(self):
+        self.bot.set_comm_blocked(False)
+        self.data = None
+
+    def __repr__(self) -> str:
+        return f"Data: {self.data}, is_local: {self.is_local}"
+
+globalComm = Communication()

@@ -1,5 +1,4 @@
 
-
 class Room:
     def __init__(self, id, row, col) -> None:
         self.id = id

@@ -1,4 +1,5 @@
 LINK 801
+COPY M X
 GRAB 199
 MARK start
 ADDI X F X

@@ -1,6 +1,6 @@
 from room import RoomEntity
 from file import File
-
+from comm import CommRegister, globalComm
 class Instruction:
     def __init__(self) -> None:
         self.opcode = None
@@ -31,9 +31,10 @@ class Bot(RoomEntity):
         super().__init__(bot_id)
         self.instructions = []
         self.labels = {}
-        self.regs = {'X': Register('X'), 'T': Register('T'), 'F': None, 'M': None, 'PC': 0}
+        self.regs = {'X': Register('X'), 'T': Register('T'), 'F': None, 'M': CommRegister(globalComm, self), 'PC': 0}
         self.isLocal = False
         self.alive = True
+        self.comm_blocked = False
         print(f"Bot {self.id} created")
         
     def print_state(self) -> None:
@@ -69,8 +70,14 @@ class Bot(RoomEntity):
                 self.labels[instruction.args[0]] = index
             index += 1
         self.print_state()
+
+    def set_comm_blocked(self, blocked) -> None:
+        self.comm_blocked = blocked
+
+    def is_comm_blocked(self) -> bool:
+        return self.comm_blocked
     
-    def _get_value(self, arg) -> int:
+    def _get_value(self, arg) -> int | None:
         if arg == 'X' or arg == 'T' or arg == 'F' or arg == 'M':
             return self.regs[arg].read()
         else:
@@ -101,50 +108,61 @@ class Bot(RoomEntity):
 
             case "LINK":
                 self._arg_check(instruction, 1)
-                link_id = instruction.args[0]
-                if not self.move(link_id):
+                link_id = self._get_value(instruction.args[0])
+                if link_id == None: return True
+                if not self.move(str(link_id)):
                     raise Exception(f"Link {link_id} not found")
                 if self.regs['F'] is not None:
-                    if not self.regs['F'].move(link_id):
+                    if not self.regs['F'].move(str(link_id)):
                         raise Exception(f"Link {link_id} not found")
 
             case "COPY":
                 self._arg_check(instruction, 2)
                 dest = self._get_reg(instruction.args[1])
                 source = self._get_value(instruction.args[0])
+                if source == None: return True
                 self.regs[dest].write(source)
 
             case "ADDI":
                 self._arg_check(instruction, 3)
                 dest = self._get_reg(instruction.args[2])
                 first = self._get_value(instruction.args[0])
+                if first == None: return True
                 second = self._get_value(instruction.args[1])
+                if second == None: return True
                 self.regs[dest].write(first + second)
 
             case "SUBI":
                 self._arg_check(instruction, 3)
                 dest = self._get_reg(instruction.args[2])
                 first = self._get_value(instruction.args[0])
+                if first == None: return True
                 second = self._get_value(instruction.args[1])
+                if second == None: return True
                 self.regs[dest].write(first - second)
 
             case "MULI":
                 self._arg_check(instruction, 3)
                 dest = self._get_reg(instruction.args[2])
                 first = self._get_value(instruction.args[0])
+                if first == None: return True
                 second = self._get_value(instruction.args[1])
+                if second == None: return True
                 self.regs[dest].write(first * second)
 
             case "DIVI":
                 self._arg_check(instruction, 3)
                 dest = self._get_reg(instruction.args[2])
                 first = self._get_value(instruction.args[0])
+                if first == None: return True
                 second = self._get_value(instruction.args[1])
+                if second == None: return True
                 self.regs[dest].write(first // second)
 
             case "GRAB":
                 self._arg_check(instruction, 1)
                 file_id = self._get_value(instruction.args[0])
+                if file_id == None: return True
                 file = self.room.find_entity(File, file_id)
                 if file is None:
                     raise Exception(f"File {file_id} not found")
@@ -165,6 +183,7 @@ class Bot(RoomEntity):
                 if self.regs["F"] is None:
                     raise Exception("No file grabbed")
                 index = self._get_value(instruction.args[0])
+                if index == None: return True
                 self.regs["F"].seek(index)
 
             case "HALT":
@@ -189,21 +208,25 @@ class Bot(RoomEntity):
                     self._arg_check(instruction, 3)
                     first = self._get_reg(instruction.args[0])
                     second = self._get_value(instruction.args[2])
+                    if second == None: return True
                     operator = instruction.args[1]
-                    if operator == "==":
-                        self.regs["T"] = 1 if self.regs[first].read() == second else 0
-                    elif operator == "!=":
-                        self.regs["T"] = 1 if self.regs[first].read() != second else 0
-                    elif operator == "<":
-                        self.regs["T"] = 1 if self.regs[first].read() < second else 0
-                    elif operator == ">":
-                        self.regs["T"] = 1 if self.regs[first].read() > second else 0
-                    elif operator == "<=":
-                        self.regs["T"] = 1 if self.regs[first].read() <= second else 0
-                    elif operator == ">=":
-                        self.regs["T"] = 1 if self.regs[first].read() >= second else 0
-                    else:
-                        raise Exception("Invalid operator")
+                    first_value = self.regs[first].read()
+                    if first_value == None: return True
+                    match operator:
+                        case "==":
+                            self.regs["T"] = 1 if first_value == second else 0
+                        case "!=":
+                            self.regs["T"] = 1 if first_value != second else 0
+                        case "<":
+                            self.regs["T"] = 1 if first_value < second else 0
+                        case ">":
+                            self.regs["T"] = 1 if first_value > second else 0
+                        case "<=":
+                            self.regs["T"] = 1 if first_value <= second else 0
+                        case ">=":
+                            self.regs["T"] = 1 if first_value >= second else 0
+                        case _:
+                            raise Exception("Invalid operator")
                     
             case "FJMP":
                 self._arg_check(instruction, 1)

@@ -6,4 +6,5 @@ TEST X < 5
 TJMP start
 LINK 801
 DROP
+COPY X M
 HALT
