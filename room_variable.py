@@ -1,15 +1,15 @@
 from room import RoomEntity
 
 class RoomVariable(RoomEntity):
-    def __init__(self, variable_id, is_read_only) -> None:
+    def __init__(self, variable_id, data:int, is_read_only) -> None:
         super().__init__(variable_id)
-        self.data = 0
+        self.data = data
         self.is_read_only = is_read_only
 
     def reset(self) -> None:
-        self.index = 0
+        self.data = 0
     
-    def read(self):
+    def read(self) -> int:
         return self.data
 
     def write(self, data) -> None:

@@ -5,11 +5,13 @@ class Scheduler:
         self.bots = []
         self.blocked_bots = []
         self.current_bot = None
+        self.first_start = True
 
     def add_bot(self, bot: Bot) -> None:
         self.bots.append(bot)
     
     def cycle(self) -> bool:
+        self.first_start = False
         stepped_bots = []
         while len(self.bots) > 0:
             self.current_bot = self.bots.pop(0)

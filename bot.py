@@ -60,8 +60,9 @@ class Bot(RoomEntity):
             self.parse_code(code_str)  
 
     def parse_code(self, code_str) -> None:
-        self.code = code_str
-        lines = self.code.split("\n")
+        self.instructions = []
+        self.labels = {}
+        lines = code_str.split("\n")
         index = 0
         for line in lines:
             instruction = Instruction(line)
