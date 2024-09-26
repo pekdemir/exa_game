@@ -1,23 +1,23 @@
 from room import RoomEntity
 
 class RoomVariable(RoomEntity):
-    def __init__(self, variable_id, data:int, is_read_only) -> None:
+    def __init__(self, variable_id, value:int, is_read_only) -> None:
         super().__init__(variable_id)
-        self.data = data
+        self.value = value
         self.is_read_only = is_read_only
 
     def reset(self) -> None:
-        self.data = 0
+        self.value = 0
     
     def read(self) -> int:
-        return self.data
+        return self.value
 
     def write(self, data) -> None:
         if not self.is_read_only:
-            self.data = data
+            self.value = data
 
     def __repr__(self) -> str:
-        return f"Variable {self.id}: {self.data} Read Only: {self.is_read_only}" 
+        return f"Variable {self.id}: {self.value} Read Only: {self.is_read_only}"
 
 
 

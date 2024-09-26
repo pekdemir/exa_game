@@ -4,7 +4,7 @@ from bot import Bot
 from file import File
 from room_variable import RoomVariable
 from scheduler import Scheduler 
-
+import json
 
 class CmdDebug:
     def __init__(self):
@@ -12,7 +12,7 @@ class CmdDebug:
         self.scheduler = Scheduler()
     
     def run(self):
-        cmd = input(">")
+        cmd = input("> ")
         while cmd != "exit":
             cmd = cmd.split(" ")
             match cmd[0]:
@@ -62,15 +62,15 @@ class CmdDebug:
                 case "code":
                     if self.scheduler.first_start == False:
                         print("Code can only be entered before the scheduler is run")
-                        break
-                    bot = self.floor.find_entity(Bot, cmd[1])
-                    print(f"Enter code for bot {cmd[1]}, enter <return> to finish:")
-                    code = ""
-                    code_line = input("-")
-                    while code_line != "":
-                        code += code_line + "\n"
+                    else:
+                        bot = self.floor.find_entity(Bot, cmd[1])
+                        print(f"Enter code for bot {cmd[1]}, enter <return> to finish:")
+                        code = ""
                         code_line = input("-")
-                    bot.parse_code(code)
+                        while code_line != "":
+                            code += code_line + "\n"
+                            code_line = input("-")
+                        bot.parse_code(code)
                 case "step":
                     self.scheduler.cycle()
                 case "run":
@@ -107,6 +107,33 @@ class CmdDebug:
                         print(variable)
                     else:
                         print("Variable not found")
+                case "load":
+                    with open(cmd[1], 'r') as json_file:
+                        json_context = json.load(json_file)
+                        for room_data in json_context["Rooms"]:
+                            room = Room(room_data["id"], int(room_data["row"]), int(room_data["col"]))
+                            self.floor.add_room(room)
+                        for link_data in json_context["Links"]:
+                            from_room = self.floor.get_room(link_data["from"])
+                            to_room = self.floor.get_room(link_data["to"])
+                            from_room.add_link(link_data["id"], to_room)
+                        for bot_data in json_context["Bots"]:
+                            room = self.floor.get_room(bot_data["room"])
+                            bot = Bot(bot_data["id"])
+                            room.put_entity(bot)
+                            self.scheduler.add_bot(bot)
+                        for file_data in json_context["Files"]:
+                            room = self.floor.get_room(file_data["room"])
+                            file = File(int(file_data["id"]))
+                            for data_val in file_data["data"]:
+                                file.write(int(data_val))
+                            file.reset()
+                            room.put_entity(file)
+                        for variable_data in json_context["Variables"]:
+                            room = self.floor.get_room(variable_data["room"])
+                            variable = RoomVariable(variable_data["id"], int(variable_data["value"]), variable_data["read_only"])
+                            room.put_entity(variable)
+
                 case _:
                     print("Invalid command")
-            cmd = input(">")
+            cmd = input("> ")

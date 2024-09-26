@@ -1,31 +1,56 @@
 {
-    "Rooms": [
-        {
-            "id": "room1",
-            "row": 2,
-            "col": 2,
-            "Links": {
-                "800": "room2",
-                "801": "room3"
-            }
-        },
-        {
-            "id": "room2",
-            "row": 2,
-            "col": 2,
-            "Links": {
-                "800": "room1",
-                "801": "room3"
-            }
-        },
-        {
-            "id": "room3",
-            "row": 2,
-            "col": 2,
-            "Links": {
-                "800": "room2",
-                "801": "room3"
-            }
-        }
-    ]
+  "Rooms": [
+    {
+      "id": "room1",
+      "row": "2",
+      "col": "2"
+    },
+    {
+      "id": "room2",
+      "row": "2",
+      "col": "2"
+    },
+    {
+      "id": "room3",
+      "row": "2",
+      "col": "2"
+    }
+  ],
+  "Links": [
+    {
+      "id": "801",
+      "from": "room1",
+      "to": "room2"
+    },
+    {
+      "id": "802",
+      "from": "room1",
+      "to": "room3"
+    }
+  ],
+  "Bots": [
+    {
+      "id": "bot1",
+      "room": "room1"
+    },
+    {
+      "id": "bot2",
+      "room": "room1"
+    }
+  ],
+  "Files": [
+    {
+      "id": "299",
+      "room": "room1",
+      "data": ["1", "2", "3", "4", "5"]
+    }
+  ],
+  "Variables": [
+    {
+      "id": "var1",
+      "room": "room1",
+      "value": "10",
+      "read_only": "false"
+    }
+  ]
 }
