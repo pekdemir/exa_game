@@ -33,7 +33,7 @@ class File(RoomEntity):
         if self.index == len(self.data):
             self.data.append(data)
         else:
-            self.data.insert(data, self.index)
+            self.data[self.index] = data
         self.index += 1
 
     def seek(self, offset) -> None:
