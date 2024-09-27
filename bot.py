@@ -1,6 +1,7 @@
-from room import RoomEntity
-from file import File
-from comm import CommRegister, globalComm
+import room
+import file
+import comm
+import globals
 class Instruction:
     def __init__(self) -> None:
         self.opcode = None
@@ -26,12 +27,12 @@ class Register:
     def __repr__(self) -> str:
         return str(self.value)
 
-class Bot(RoomEntity):
+class Bot(room.RoomEntity):
     def __init__(self, bot_id) -> None:
         super().__init__(bot_id)
         self.instructions = []
         self.labels = {}
-        self.regs = {'X': Register('X'), 'T': Register('T'), 'F': None, 'M': CommRegister(globalComm, self), 'PC': 0}
+        self.regs = {'X': Register('X'), 'T': Register('T'), 'F': None, 'M': comm.CommRegister(globals.game_globals.communication, self), 'PC': 0}
         self.isLocal = False
         self.alive = True
         self.comm_blocked = False
@@ -164,14 +165,14 @@ class Bot(RoomEntity):
                 self._arg_check(instruction, 1)
                 file_id = self._get_value(instruction.args[0])
                 if file_id == None: return True
-                file = self.room.find_entity(File, file_id)
-                if file is None:
+                found_file = self.room.find_entity(file.File, file_id)
+                if found_file is None:
                     raise Exception(f"File {file_id} not found")
-                if file.is_grabbed():
+                if found_file.is_grabbed():
                     raise Exception(f"File {file_id} already grabbed")
-                file.reset()
-                file.grab()
-                self.regs["F"] = file
+                found_file.reset()
+                found_file.grab()
+                self.regs["F"] = found_file
                 
             case "DROP":
                 if self.regs["F"] is None:
