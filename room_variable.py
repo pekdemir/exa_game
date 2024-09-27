@@ -1,6 +1,6 @@
-from room import RoomEntity
+import room
 
-class RoomVariable(RoomEntity):
+class RoomVariable(room.RoomEntity):
     def __init__(self, variable_id, value:int, is_read_only) -> None:
         super().__init__(variable_id)
         self.value = value

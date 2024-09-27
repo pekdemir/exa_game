@@ -51,5 +51,3 @@ class CommRegister():
 
     def __repr__(self) -> str:
         return f"Data: {self.data}, is_local: {self.is_local}"
-
-globalComm = Communication()

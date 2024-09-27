@@ -1,6 +1,6 @@
-from room import RoomEntity
+import room
 
-class File(RoomEntity):
+class File(room.RoomEntity):
     def __init__(self, file_id) -> None:
         super().__init__(file_id)
         self.name = 'F'

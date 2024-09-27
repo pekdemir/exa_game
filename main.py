@@ -5,14 +5,14 @@
 # from room_variable import RoomVariable
 # from scheduler import Scheduler 
 
-from cmd_debug import CmdDebug
+import cmd_debug
 
 
 
 
 if __name__=="__main__":
 
-    cmd_debug = CmdDebug()
+    cmd_debug = cmd_debug.CmdDebug()
     cmd_debug.run()
     # floor = Floor()
 
